@@ -32,10 +32,28 @@ with description(value_object.ValueObject):
                 assert a_value_object.x == 5
                 assert a_value_object.y == 3
 
+        with context("with mixed arguments and keyword arguments"):
+
+            with it('generates instance attributes for declared fields'):
+                a_value_object = Point(5, y=3)
+
+                assert a_value_object.x == 5
+                assert a_value_object.y == 3
 
     with description("restrictions"):
 
         with context('on initialization'):
+
+            with it("must at least have one field"):
+                try:
+                    class NoFields(object):
+                        __metaclass__ = value_object.ValueObject
+                        __fields__ = ()
+                    NoFields()
+                except ValueError, e:
+                    assert True
+                else:
+                    assert False, "Exception not raised"
 
             with it('must have number of values equal to number of fields'):
                 try:
@@ -47,6 +65,14 @@ with description(value_object.ValueObject):
 
                 try:
                     a_value_object = Point(5)
+                except ValueError, e:
+                    assert True
+                else:
+                    assert False, "Exception not raised"
+
+            with _it("must respect order of declared fields"):
+                try:
+                    a_value_object = Point(3, x=5)
                 except ValueError, e:
                     assert True
                 else:
