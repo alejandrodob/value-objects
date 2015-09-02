@@ -3,6 +3,8 @@ class ValueObject(type):
     def __call__(self, *args, **kwargs):
         if not self.__fields__:
             raise ValueError
+        if None in args or None in kwargs.values():
+            raise ValueError
         obj = type.__call__(self)
         total_values_provided = len(args) + len(kwargs)
         if total_values_provided != len(self.__fields__):

@@ -55,6 +55,14 @@ with description(value_object.ValueObject):
                 else:
                     assert False, "Exception not raised"
 
+            with it("must not have any field initialized to None"):
+                try:
+                    Point(None, 3)
+                except ValueError, e:
+                    assert True
+                else:
+                    assert False
+
             with it('must have number of values equal to number of fields'):
                 try:
                     a_value_object = Point(5, 3, 4)
