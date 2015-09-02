@@ -32,7 +32,12 @@ with description(value_object.ValueObject):
                 assert a_value_object.x == 5
                 assert a_value_object.y == 3
 
-            with it('raises an exception if extra fields are provided'):
+
+    with description("restrictions"):
+
+        with context('on initialization'):
+
+            with it('must have number of values equal to number of fields'):
                 try:
                     a_value_object = Point(5, 3, 4)
                 except ValueError, e:
@@ -40,7 +45,6 @@ with description(value_object.ValueObject):
                 else:
                     assert False, "Exception not raised"
 
-            with it('raises an exception if not enough fields are provided'):
                 try:
                     a_value_object = Point(5)
                 except ValueError, e:
