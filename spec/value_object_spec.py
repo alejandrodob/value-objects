@@ -10,7 +10,7 @@ with description(value_object.ValueObject):
 
         with context('with keyword arguments in constructor'):
 
-            with it('generates constructor and fields for declared fields'):
+            with it('generates instance attributes for declared fields'):
                 a_value_object = Point(x=5, y=3)
 
                 assert a_value_object.x == 5
@@ -22,4 +22,20 @@ with description(value_object.ValueObject):
                 except ValueError, e:
                     assert True
                 else:
-                    assert False
+                    assert False, "Exception not raised"
+
+        with context('with non-keyword arguments in constructor'):
+
+            with it('generates instance attributes for declared fields'):
+                a_value_object = Point(5, 3)
+
+                assert a_value_object.x == 5
+                assert a_value_object.y == 3
+
+            with it('raises an exception if extra fields are provided'):
+                try:
+                    a_value_object = Point(5, 3, 4)
+                except ValueError, e:
+                    assert True
+                else:
+                    assert False, "Exception not raised"
