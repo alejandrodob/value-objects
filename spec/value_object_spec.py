@@ -39,3 +39,11 @@ with description(value_object.ValueObject):
                     assert True
                 else:
                     assert False, "Exception not raised"
+
+            with it('raises an exception if not enough fields are provided'):
+                try:
+                    a_value_object = Point(5)
+                except ValueError, e:
+                    assert True
+                else:
+                    assert False, "Exception not raised"

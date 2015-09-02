@@ -2,7 +2,8 @@ class ValueObject(type):
 
     def __call__(self, *args, **kwargs):
         obj = type.__call__(self)
-        if len(args) > len(self.__fields__):
+        total_values_provided = len(args) + len(kwargs)
+        if total_values_provided != len(self.__fields__):
             raise ValueError
         if args:
             for field_value in zip(args, self.__fields__):
