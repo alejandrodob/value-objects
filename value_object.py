@@ -16,4 +16,13 @@ class ValueObject(type):
             if field not in self.__fields__:
                 raise ValueError
             setattr(obj, field, kwargs[field])
+        try:
+            for invariant in self.__invariants__:
+                try:
+                    if not getattr(obj, invariant)():
+                        raise ValueError
+                except AttributeError as e:
+                    raise ValueError
+        except AttributeError as e:
+            pass
         return obj
