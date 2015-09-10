@@ -22,7 +22,7 @@ with description(value_object.ValueObject):
                     Point(x=5, not_a_field='whatever')
 
                 expect(create_point_with_invalid_field).to(
-                    raise_error(value_object.FieldNotDeclared, "Field 'not_a_field' not declared"))
+                    raise_error(value_object.UndeclaredField, "Field 'not_a_field' not declared"))
 
         with context('with non-keyword arguments in constructor'):
             with it('generates instance attributes for declared fields'):
