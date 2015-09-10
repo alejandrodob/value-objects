@@ -2,7 +2,7 @@ class ValueObject(type):
 
     def __call__(self, *args, **kwargs):
         if not self.__fields__:
-            raise ValueError
+            raise FieldsNotDeclared()
         if None in args or None in kwargs.values():
             raise ValueError
         obj = type.__call__(self)
@@ -29,4 +29,7 @@ class ValueObject(type):
 
 
 class UndeclaredField(Exception):
+    pass
+
+class FieldsNotDeclared(Exception):
     pass

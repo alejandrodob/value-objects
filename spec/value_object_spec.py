@@ -45,7 +45,7 @@ with description(value_object.ValueObject):
                     __metaclass__ = value_object.ValueObject
                     __fields__ = ()
 
-                expect(NoFields).to(raise_error(ValueError))
+                expect(NoFields).to(raise_error(value_object.FieldsNotDeclared))
 
             with it('must not have any field initialized to None'):
                 def create_point_with_None_argument():
