@@ -14,7 +14,7 @@ class ValueObject(type):
                 setattr(obj, field_value[1], field_value[0])
         for field in kwargs:
             if field not in self.__fields__:
-                raise ValueError
+                raise FieldNotDeclared("Field '%s' not declared" % field)
             setattr(obj, field, kwargs[field])
         try:
             for invariant in self.__invariants__:
@@ -26,3 +26,7 @@ class ValueObject(type):
         except AttributeError as e:
             pass
         return obj
+
+
+class FieldNotDeclared(Exception):
+    pass
