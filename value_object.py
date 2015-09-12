@@ -4,10 +4,7 @@ class ValueObject(type):
 
         self._check_fields_declared()
         self._check_fields_have_value(*args, **kwargs)
-
-        total_values_provided = len(args) + len(kwargs)
-        if total_values_provided != len(self.__fields__):
-            raise WrongNumberOfArguments("2 fields were declared, but constructor received %s" % total_values_provided)
+        self._check_all_fields_are_provided(*args, **kwargs)
 
         obj = type.__call__(self)
 
@@ -41,6 +38,11 @@ class ValueObject(type):
         none_keyword_args = [k for k, v in kwargs.iteritems() if v == None]
         if none_keyword_args:
             raise FieldWithoutValue("Declared field '%s' must have a value" % none_keyword_args[0])
+
+    def _check_all_fields_are_provided(self, *args, **kwargs):
+        total_values_provided = len(args) + len(kwargs)
+        if total_values_provided != len(self.__fields__):
+            raise WrongNumberOfArguments("2 fields were declared, but constructor received %s" % total_values_provided)
 
 
 class WrongField(Exception):
