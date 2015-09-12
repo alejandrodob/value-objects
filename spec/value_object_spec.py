@@ -47,11 +47,21 @@ with description(value_object.ValueObject):
 
                 expect(NoFields).to(raise_error(value_object.FieldsNotDeclared))
 
-            with it('must not have any field initialized to None'):
-                def create_point_with_None_argument():
-                    Point(None, 3)
+            with context('with non-keyword arguments'):
+                with it('must not have any field initialized to None'):
+                    def create_point_with_None_argument():
+                        Point(None, 3)
 
-                expect(create_point_with_None_argument).to(raise_error(ValueError))
+                    expect(create_point_with_None_argument).to(raise_error(
+                        value_object.FieldWithoutValue, "Declared field 'x' must have a value"))
+
+            with context('with keyword arguments'):
+                with it('must not have any field initialized to None'):
+                    def create_point_with_None_argument():
+                        Point(x=None, y=3)
+
+                    expect(create_point_with_None_argument).to(raise_error(
+                        value_object.FieldWithoutValue, "Declared field 'x' must have a value"))
 
             with it('must have number of values equal to number of fields'):
                 def create_point_with_too_many_values():

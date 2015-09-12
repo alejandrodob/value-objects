@@ -3,8 +3,12 @@ class ValueObject(type):
     def __call__(self, *args, **kwargs):
         if not self.__fields__:
             raise FieldsNotDeclared()
-        if None in args or None in kwargs.values():
-            raise ValueError
+        if None in args:
+            field = self.__fields__[args.index(None)]
+            raise FieldWithoutValue("Declared field '%s' must have a value" % field)
+        none_keyword_args = [k for k, v in kwargs.iteritems() if v == None]
+        if none_keyword_args:
+            raise FieldWithoutValue("Declared field '%s' must have a value" % none_keyword_args[0])
         obj = type.__call__(self)
         total_values_provided = len(args) + len(kwargs)
         if total_values_provided != len(self.__fields__):
@@ -32,4 +36,7 @@ class UndeclaredField(Exception):
     pass
 
 class FieldsNotDeclared(Exception):
+    pass
+
+class FieldWithoutValue(Exception):
     pass
