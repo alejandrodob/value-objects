@@ -6,26 +6,18 @@ class ValueObject(type):
         self._check_fields_have_value(*args, **kwargs)
         self._check_all_fields_are_provided(*args, **kwargs)
 
-        obj = type.__call__(self)
-
-        if args:
-            for field_value in zip(args, self.__fields__):
-                setattr(obj, field_value[1], field_value[0])
-        for field in kwargs:
-            if field not in self.__fields__:
-                raise WrongField("Field '%s' not declared" % field)
-            setattr(obj, field, kwargs[field])
+        value_object = self._create_object_with_values(*args, **kwargs)
 
         try:
             for invariant in self.__invariants__:
                 try:
-                    if not getattr(obj, invariant)():
+                    if not getattr(value_object, invariant)():
                         raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
                 except AttributeError as e:
                     raise InvariantNotImplemented( "Invariant '%s' declared but not implemented" % invariant)
         except AttributeError as e:
             pass
-        return obj
+        return value_object
 
     def _check_fields_declared(self):
         if not self.__fields__:
@@ -43,6 +35,21 @@ class ValueObject(type):
         total_values_provided = len(args) + len(kwargs)
         if total_values_provided != len(self.__fields__):
             raise WrongNumberOfArguments("2 fields were declared, but constructor received %s" % total_values_provided)
+
+    def _create_object_with_values(self, *args, **kwargs):
+        value_object = type.__call__(self)
+        self._add_values_to_value_object(value_object, *args, **kwargs)
+        return value_object
+
+    def _add_values_to_value_object(value_object, self, *args, **kwargs):
+        if args:
+            for value, field in zip(args, self.__fields__):
+                setattr(value_object, field, value)
+        for field in kwargs:
+            if field not in self.__fields__:
+                raise WrongField("Field '%s' not declared" % field)
+            setattr(value_object, field, kwargs[field])
+
 
 
 class WrongField(Exception):
