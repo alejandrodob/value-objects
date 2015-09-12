@@ -2,7 +2,7 @@ class ValueObject(type):
 
     def __call__(self, *args, **kwargs):
         if not self.__fields__:
-            raise FieldsNotDeclared()
+            raise NoFieldsDeclared()
         if None in args:
             field = self.__fields__[args.index(None)]
             raise FieldWithoutValue("Declared field '%s' must have a value" % field)
@@ -18,7 +18,7 @@ class ValueObject(type):
                 setattr(obj, field_value[1], field_value[0])
         for field in kwargs:
             if field not in self.__fields__:
-                raise UndeclaredField("Field '%s' not declared" % field)
+                raise WrongField("Field '%s' not declared" % field)
             setattr(obj, field, kwargs[field])
         try:
             for invariant in self.__invariants__:
@@ -32,10 +32,10 @@ class ValueObject(type):
         return obj
 
 
-class UndeclaredField(Exception):
+class WrongField(Exception):
     pass
 
-class FieldsNotDeclared(Exception):
+class NoFieldsDeclared(Exception):
     pass
 
 class FieldWithoutValue(Exception):
