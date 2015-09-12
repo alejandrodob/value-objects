@@ -70,8 +70,10 @@ with description(value_object.ValueObject):
                 def create_point_with_not_enough_values():
                     Point(5)
 
-                expect(create_point_with_too_many_values).to(raise_error(ValueError))
-                expect(create_point_with_not_enough_values).to(raise_error(ValueError))
+                expect(create_point_with_too_many_values).to(raise_error(
+                    value_object.WrongNumberOfArguments, "2 fields were declared, but constructor received 3"))
+                expect(create_point_with_not_enough_values).to(raise_error(
+                    value_object.WrongNumberOfArguments, "2 fields were declared, but constructor received 1"))
 
             with _it('must respect order of declared fields'):
                 def create_point_with_invalid_fields_order():

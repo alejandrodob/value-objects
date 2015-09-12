@@ -12,7 +12,7 @@ class ValueObject(type):
         obj = type.__call__(self)
         total_values_provided = len(args) + len(kwargs)
         if total_values_provided != len(self.__fields__):
-            raise ValueError
+            raise WrongNumberOfArguments("2 fields were declared, but constructor received %s" % total_values_provided)
         if args:
             for field_value in zip(args, self.__fields__):
                 setattr(obj, field_value[1], field_value[0])
@@ -39,4 +39,7 @@ class FieldsNotDeclared(Exception):
     pass
 
 class FieldWithoutValue(Exception):
+    pass
+
+class WrongNumberOfArguments(Exception):
     pass
