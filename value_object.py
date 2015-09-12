@@ -26,7 +26,7 @@ class ValueObject(type):
                     if not getattr(obj, invariant)():
                         raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
                 except AttributeError as e:
-                    raise ValueError
+                    raise InvariantNotImplemented( "Invariant '%s' declared but not implemented" % invariant)
         except AttributeError as e:
             pass
         return obj
@@ -45,4 +45,7 @@ class WrongNumberOfArguments(Exception):
     pass
 
 class InvariantViolation(Exception):
+    pass
+
+class InvariantNotImplemented(Exception):
     pass

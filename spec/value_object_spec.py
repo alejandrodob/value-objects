@@ -108,9 +108,10 @@ with description(value_object.ValueObject):
             class PairOfIntegers(object):
                 __metaclass__ = value_object.ValueObject
                 __fields__ = ('n', 'm')
-                __invariants__ = ('integers')
+                __invariants__ = ('integers',)
 
             def create_pair_of_integers():
                 PairOfIntegers(3, 5)
 
-            expect(create_pair_of_integers).to(raise_error(ValueError))
+            expect(create_pair_of_integers).to(raise_error(
+                value_object.InvariantNotImplemented, "Invariant 'integers' declared but not implemented"))
