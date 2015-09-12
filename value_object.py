@@ -1,18 +1,21 @@
 class ValueObject(type):
 
     def __call__(self, *args, **kwargs):
-        if not self.__fields__:
-            raise NoFieldsDeclared()
+        self._check_fields_declared()
+
         if None in args:
             field = self.__fields__[args.index(None)]
             raise FieldWithoutValue("Declared field '%s' must have a value" % field)
         none_keyword_args = [k for k, v in kwargs.iteritems() if v == None]
         if none_keyword_args:
             raise FieldWithoutValue("Declared field '%s' must have a value" % none_keyword_args[0])
-        obj = type.__call__(self)
+
         total_values_provided = len(args) + len(kwargs)
         if total_values_provided != len(self.__fields__):
             raise WrongNumberOfArguments("2 fields were declared, but constructor received %s" % total_values_provided)
+
+        obj = type.__call__(self)
+
         if args:
             for field_value in zip(args, self.__fields__):
                 setattr(obj, field_value[1], field_value[0])
@@ -20,6 +23,7 @@ class ValueObject(type):
             if field not in self.__fields__:
                 raise WrongField("Field '%s' not declared" % field)
             setattr(obj, field, kwargs[field])
+
         try:
             for invariant in self.__invariants__:
                 try:
@@ -30,6 +34,10 @@ class ValueObject(type):
         except AttributeError as e:
             pass
         return obj
+
+    def _check_fields_declared(self):
+        if not self.__fields__:
+            raise NoFieldsDeclared()
 
 
 class WrongField(Exception):
