@@ -4,19 +4,12 @@ class ValueObject(type):
 
         self._check_fields_declared()
         self._check_fields_have_value(*args, **kwargs)
-        self._check_all_fields_are_provided(*args, **kwargs)
+        self._check_one_value_per_field_provided(*args, **kwargs)
 
         value_object = self._create_object_with_values(*args, **kwargs)
 
-        try:
-            for invariant in self.__invariants__:
-                try:
-                    if not getattr(value_object, invariant)():
-                        raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
-                except AttributeError as e:
-                    raise InvariantNotImplemented( "Invariant '%s' declared but not implemented" % invariant)
-        except AttributeError as e:
-            pass
+        self._check_invariants(value_object)
+
         return value_object
 
     def _check_fields_declared(self):
@@ -31,7 +24,7 @@ class ValueObject(type):
         if none_keyword_args:
             raise FieldWithoutValue("Declared field '%s' must have a value" % none_keyword_args[0])
 
-    def _check_all_fields_are_provided(self, *args, **kwargs):
+    def _check_one_value_per_field_provided(self, *args, **kwargs):
         total_values_provided = len(args) + len(kwargs)
         if total_values_provided != len(self.__fields__):
             raise WrongNumberOfArguments("2 fields were declared, but constructor received %s" % total_values_provided)
@@ -50,6 +43,23 @@ class ValueObject(type):
                 raise WrongField("Field '%s' not declared" % field)
             setattr(value_object, field, kwargs[field])
 
+    def _check_invariants(self, value_object):
+        if '__invariants__' not in dir(self):
+            return
+        self._check_declared_invariants_are_implemented(value_object)
+        self._check_invariants_hold(value_object)
+
+    def _check_declared_invariants_are_implemented(self, value_object):
+        for invariant in self.__invariants__:
+            try:
+                getattr(value_object, invariant)
+            except AttributeError as e:
+                raise InvariantNotImplemented( "Invariant '%s' declared but not implemented" % invariant)
+
+    def _check_invariants_hold(self, value_object):
+        for invariant in self.__invariants__:
+            if not getattr(value_object, invariant)():
+                raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
 
 
 class WrongField(Exception):
