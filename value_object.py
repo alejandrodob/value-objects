@@ -24,7 +24,7 @@ class ValueObject(type):
             for invariant in self.__invariants__:
                 try:
                     if not getattr(obj, invariant)():
-                        raise ValueError
+                        raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
                 except AttributeError as e:
                     raise ValueError
         except AttributeError as e:
@@ -42,4 +42,7 @@ class FieldWithoutValue(Exception):
     pass
 
 class WrongNumberOfArguments(Exception):
+    pass
+
+class InvariantViolation(Exception):
     pass

@@ -99,8 +99,10 @@ with description(value_object.ValueObject):
             def create_point_with_y_less_than_x():
                 Point(5, 3)
 
-            expect(create_point_in_second_quadrant).to(raise_error(ValueError))
-            expect(create_point_with_y_less_than_x).to(raise_error(ValueError))
+            expect(create_point_in_second_quadrant).to(raise_error(
+                value_object.InvariantViolation, "Fields ('x', 'y') violate invariant '_inside_first_quadrant'"))
+            expect(create_point_with_y_less_than_x).to(raise_error(
+                value_object.InvariantViolation, "Fields ('x', 'y') violate invariant '_x_less_than_y'"))
 
         with it('raises an exception when a declared invariant has not been implemented'):
             class PairOfIntegers(object):
