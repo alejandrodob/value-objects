@@ -38,6 +38,14 @@ with description(value_object.ValueObject):
                 expect(a_value_object.x).to(equal(5))
                 expect(a_value_object.y).to(equal(3))
 
+        with it('provides equality based on declared fields values'):
+            a_value_object = Point(5, 3)
+            same_value_object = Point(5, 3)
+            different_value_object = Point(6, 3)
+
+            expect(a_value_object).to(equal(same_value_object))
+            expect(a_value_object).not_to(equal(different_value_object))
+
     with description('restrictions'):
         with context('on initialization'):
             with it('must at least have one field'):

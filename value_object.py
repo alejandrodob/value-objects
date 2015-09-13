@@ -8,6 +8,8 @@ class ValueObject(type):
 
         value_object = self._create_object_with_values(*args, **kwargs)
 
+        self._add_equality_comparators_to(value_object)
+
         self._check_invariants(value_object)
 
         return value_object
@@ -34,7 +36,7 @@ class ValueObject(type):
         self._add_values_to_value_object(value_object, *args, **kwargs)
         return value_object
 
-    def _add_values_to_value_object(value_object, self, *args, **kwargs):
+    def _add_values_to_value_object(self, value_object, *args, **kwargs):
         if args:
             for value, field in zip(args, self.__fields__):
                 setattr(value_object, field, value)
@@ -42,6 +44,24 @@ class ValueObject(type):
             if field not in self.__fields__:
                 raise WrongField("Field '%s' not declared" % field)
             setattr(value_object, field, kwargs[field])
+
+    def _add_equality_comparators_to(self, value_object):
+        object_class = value_object.__class__
+        def eq(self, other):
+            if isinstance(other, object_class):
+                for field in self.__fields__:
+                    if not (hasattr(other, field)
+                            and getattr(self, field) == getattr(other, field)):
+                        return False
+                return True
+            else:
+                return NotImplemented
+        def ne(self, other):
+            result = eq(self, other)
+            return result if result is NotImplemented else not result
+
+        setattr(object_class, '__eq__', eq)
+        setattr(object_class, '__ne__', ne)
 
     def _check_invariants(self, value_object):
         if '__invariants__' not in dir(self):
