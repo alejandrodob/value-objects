@@ -47,27 +47,13 @@ class ValueObject(type):
 
     def _add_equality_comparators_to(self, value_object):
         object_class = value_object.__class__
-        def eq(self, other):
-            if isinstance(other, object_class):
-                for field in self.__fields__:
-                    if not (hasattr(other, field)
-                            and getattr(self, field) == getattr(other, field)):
-                        return False
-                return True
-            else:
-                return NotImplemented
-        def ne(self, other):
-            result = eq(self, other)
-            return result if result is NotImplemented else not result
-
-        setattr(object_class, '__eq__', eq)
-        setattr(object_class, '__ne__', ne)
+        setattr(object_class, '__eq__', self._build_eq_comparator())
+        setattr(object_class, '__ne__', self._build_ne_comparator())
 
     def _check_invariants(self, value_object):
-        if '__invariants__' not in dir(self):
-            return
-        self._check_declared_invariants_are_implemented(value_object)
-        self._check_invariants_hold(value_object)
+        if hasattr(self, '__invariants__'):
+            self._check_declared_invariants_are_implemented(value_object)
+            self._check_invariants_hold(value_object)
 
     def _check_declared_invariants_are_implemented(self, value_object):
         for invariant in self.__invariants__:
@@ -80,6 +66,24 @@ class ValueObject(type):
         for invariant in self.__invariants__:
             if not getattr(value_object, invariant)():
                 raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
+
+    def _build_eq_comparator(self):
+        def __eq__(me, other):
+            if isinstance(other, me.__class__):
+                for field in me.__fields__:
+                    if not (hasattr(other, field)
+                            and getattr(me, field) == getattr(other, field)):
+                        return False
+                return True
+            else:
+                return NotImplemented
+        return __eq__
+
+    def _build_ne_comparator(self):
+        def __ne__(me, other):
+            result = self._build_eq_comparator()(me, other)
+            return result if result is NotImplemented else not result
+        return __ne__
 
 
 class WrongField(Exception):
