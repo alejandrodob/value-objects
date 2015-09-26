@@ -1,3 +1,5 @@
+from .exceptions import *
+
 class ValueObject(type):
 
     def __call__(self, *args, **kwargs):
@@ -84,22 +86,3 @@ class ValueObject(type):
             result = self._build_eq_comparator()(me, other)
             return result if result is NotImplemented else not result
         return __ne__
-
-
-class WrongField(Exception):
-    pass
-
-class NoFieldsDeclared(Exception):
-    pass
-
-class FieldWithoutValue(Exception):
-    pass
-
-class WrongNumberOfArguments(Exception):
-    pass
-
-class InvariantViolation(Exception):
-    pass
-
-class InvariantNotImplemented(Exception):
-    pass
