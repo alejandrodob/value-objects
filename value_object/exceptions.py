@@ -15,3 +15,6 @@ class InvariantViolation(Exception):
 
 class InvariantNotImplemented(Exception):
     pass
+
+class FieldMutationAttempt(Exception):
+    pass

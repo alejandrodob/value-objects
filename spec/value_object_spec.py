@@ -47,6 +47,14 @@ with description(ValueObject):
             expect(a_value_object).to(equal(same_value_object))
             expect(a_value_object).not_to(equal(different_value_object))
 
+        with it('provides immutability on declared fields values'):
+            a_value_object = Point(5, 3)
+            def modify_field_on_point():
+                a_value_object.y = 17
+
+            expect(modify_field_on_point).to(raise_error(
+                FieldMutationAttempt, "Cannot modify field 'y'. ValueObject is immutable"))
+
     with description('restrictions'):
         with context('on initialization'):
             with it('must at least have one field'):

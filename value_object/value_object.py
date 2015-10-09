@@ -3,16 +3,15 @@ from .exceptions import *
 class ValueObject(type):
 
     def __call__(self, *args, **kwargs):
-
+        self._open_class_for_modification()
         self._check_fields_declared()
         self._check_fields_have_value(*args, **kwargs)
         self._check_one_value_per_field_provided(*args, **kwargs)
 
         value_object = self._create_object_with_values(*args, **kwargs)
-
         self._add_equality_comparators_to(value_object)
-
         self._check_invariants(value_object)
+        self._close_class_for_modification()
 
         return value_object
 
@@ -48,9 +47,14 @@ class ValueObject(type):
             setattr(value_object, field, kwargs[field])
 
     def _add_equality_comparators_to(self, value_object):
-        object_class = value_object.__class__
-        setattr(object_class, '__eq__', self._build_eq_comparator())
-        setattr(object_class, '__ne__', self._build_ne_comparator())
+        setattr(self, '__eq__', self._build_eq_comparator())
+        setattr(self, '__ne__', self._build_ne_comparator())
+
+    def _open_class_for_modification(self):
+        setattr(self, '__setattr__', object.__setattr__)
+
+    def _close_class_for_modification(self):
+        setattr(self, '__setattr__', self._build_setattr())
 
     def _check_invariants(self, value_object):
         if hasattr(self, '__invariants__'):
@@ -86,3 +90,8 @@ class ValueObject(type):
             result = self._build_eq_comparator()(me, other)
             return result if result is NotImplemented else not result
         return __ne__
+
+    def _build_setattr(self):
+        def __setattr__(me, attr, value):
+            raise FieldMutationAttempt("Cannot modify field '%s'. ValueObject is immutable" % attr)
+        return __setattr__
