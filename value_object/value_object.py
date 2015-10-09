@@ -47,14 +47,14 @@ class ValueObject(type):
             setattr(value_object, field, kwargs[field])
 
     def _add_equality_comparators_to(self, value_object):
-        setattr(self, '__eq__', self._build_eq_comparator())
-        setattr(self, '__ne__', self._build_ne_comparator())
+        setattr(self, '__eq__', _eq)
+        setattr(self, '__ne__', _ne)
 
     def _open_class_for_modification(self):
         setattr(self, '__setattr__', object.__setattr__)
 
     def _close_class_for_modification(self):
-        setattr(self, '__setattr__', self._build_setattr())
+        setattr(self, '__setattr__', _setattr)
 
     def _check_invariants(self, value_object):
         if hasattr(self, '__invariants__'):
@@ -73,25 +73,21 @@ class ValueObject(type):
             if not getattr(value_object, invariant)():
                 raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
 
-    def _build_eq_comparator(self):
-        def __eq__(me, other):
-            if isinstance(other, me.__class__):
-                for field in me.__fields__:
-                    if not (hasattr(other, field)
-                            and getattr(me, field) == getattr(other, field)):
-                        return False
-                return True
-            else:
-                return NotImplemented
-        return __eq__
 
-    def _build_ne_comparator(self):
-        def __ne__(me, other):
-            result = self._build_eq_comparator()(me, other)
-            return result if result is NotImplemented else not result
-        return __ne__
 
-    def _build_setattr(self):
-        def __setattr__(me, attr, value):
-            raise FieldMutationAttempt("Cannot modify field '%s'. ValueObject is immutable" % attr)
-        return __setattr__
+def _eq(me, other):
+    if isinstance(other, me.__class__):
+        for field in me.__fields__:
+            if not (hasattr(other, field)
+                    and getattr(me, field) == getattr(other, field)):
+                return False
+        return True
+    else:
+        return NotImplemented
+
+def _ne(me, other):
+    result = _eq(me, other)
+    return result if result is NotImplemented else not result
+
+def _setattr(me, attr, value):
+    raise FieldMutationAttempt("Cannot modify field '%s'. ValueObject is immutable" % attr)
