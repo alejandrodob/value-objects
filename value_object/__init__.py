@@ -1,3 +1,3 @@
-from .core import ValueObject
+from .value_object import ValueObject
 
 __all__ = ['ValueObject']
