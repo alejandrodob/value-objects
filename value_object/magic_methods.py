@@ -16,3 +16,6 @@ def _ne(me, other):
 
 def _setattr(me, attr, value):
     raise FieldMutationAttempt("Cannot modify field '%s'. ValueObject is immutable" % attr)
+
+def _delattr(me, attr):
+    raise FieldMutationAttempt("Cannot delete field '%s'. ValueObject is immutable" % attr)

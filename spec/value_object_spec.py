@@ -55,6 +55,12 @@ with description(ValueObject):
             expect(modify_field_on_point).to(raise_error(
                 FieldMutationAttempt, "Cannot modify field 'y'. ValueObject is immutable"))
 
+            def delete_field_on_point():
+                del a_value_object.x
+
+            expect(delete_field_on_point).to(raise_error(
+                 FieldMutationAttempt, "Cannot delete field 'x'. ValueObject is immutable"))
+
     with description('restrictions'):
         with context('on initialization'):
             with it('must at least have one field'):

@@ -1,5 +1,5 @@
 from .exceptions import *
-from .magic_methods import _eq, _ne, _setattr
+from .magic_methods import _eq, _ne, _setattr, _delattr
 
 class ValueObject(type):
 
@@ -55,6 +55,7 @@ class ValueObject(type):
         setattr(self, '__setattr__', object.__setattr__)
 
     def _close_class_for_modification(self):
+        setattr(self, '__delattr__', _delattr)
         setattr(self, '__setattr__', _setattr)
 
     def _check_invariants(self, value_object):
