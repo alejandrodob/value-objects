@@ -98,11 +98,12 @@ with description(ValueObject):
                 expect(create_point_with_not_enough_values).to(raise_error(
                     WrongNumberOfArguments, "2 fields were declared, but constructor received 1"))
 
-            with _it('must respect order of declared fields'):
+            with it('raises an exception when keyword arguments gets multiple values'):
                 def create_point_with_invalid_fields_order():
                     Point(3, x=5)
 
-                expect(create_point_with_invalid_fields_order).to(raise_error(ValueError))
+                expect(create_point_with_invalid_fields_order).to(raise_error(
+                    TypeError, "Point constructor got multiple values for keyword argument 'x'"))
 
     with description('forcing invariants'):
         with it('forces declared invariants'):

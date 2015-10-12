@@ -45,6 +45,9 @@ class ValueObject(type):
         for field in kwargs:
             if field not in self.__fields__:
                 raise WrongField("Field '%s' not declared" % field)
+            if hasattr(value_object, field):
+                raise TypeError("%s constructor got multiple values for keyword argument '%s'"
+                                % (value_object.__class__.__name__, field))
             setattr(value_object, field, kwargs[field])
 
     def _add_equality_comparators_to(self, value_object):
