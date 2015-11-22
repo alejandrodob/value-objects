@@ -30,8 +30,9 @@ class ValueObject(type):
 
     def _check_one_value_per_field_provided(self, *args, **kwargs):
         total_values_provided = len(args) + len(kwargs)
-        if total_values_provided != len(self.__fields__):
-            raise WrongNumberOfArguments("2 fields were declared, but constructor received %s" % total_values_provided)
+        values_declared = len(self.__fields__)
+        if total_values_provided != values_declared:
+            raise WrongNumberOfArguments("%s fields were declared, but constructor received %s" % (values_declared, total_values_provided))
 
     def _create_object_with_values(self, *args, **kwargs):
         value_object = type.__call__(self)
