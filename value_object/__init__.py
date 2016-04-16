@@ -1,3 +1,3 @@
-from .value_object import ValueObject, value_object
+from .value_object import  value_object
 
-__all__ = ['ValueObject', 'value_object']
+__all__ = ['value_object']

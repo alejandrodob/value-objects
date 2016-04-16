@@ -1,4 +1,4 @@
-from value_object import ValueObject, value_object
+from value_object import value_object
 from value_object.exceptions import *
 from expects import *
 
@@ -8,7 +8,7 @@ class Point(object):
     pass
 
 
-with description(ValueObject):
+with description(value_object):
 
     with description('standard behaviour'):
         with context('with keyword arguments in constructor'):
@@ -109,13 +109,13 @@ with description(ValueObject):
 
     with description('forcing invariants'):
         with it('forces declared invariants'):
+            @value_object('x', 'y')
             class Point(object):
-                __metaclass__ = ValueObject
-                __fields__ = ('x', 'y')
                 __invariants__ = ('_inside_first_quadrant', '_x_less_than_y')
 
                 def _inside_first_quadrant(self):
                     return self.x > 0 and self.y > 0
+
                 def _x_less_than_y(self):
                     return self.x < self.y
 
@@ -131,9 +131,8 @@ with description(ValueObject):
                 InvariantViolation, "Fields ('x', 'y') violate invariant '_x_less_than_y'"))
 
         with it('raises an exception when a declared invariant has not been implemented'):
+            @value_object('n', 'm')
             class PairOfIntegers(object):
-                __metaclass__ = ValueObject
-                __fields__ = ('n', 'm')
                 __invariants__ = ('integers',)
 
             def create_pair_of_integers():

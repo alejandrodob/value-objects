@@ -80,11 +80,17 @@ def value_object(*fields):
         raise NoFieldsDeclared()
 
     def the_class(a_class):
-        class NewClass(object):
+        class DecoratedClass(object):
             __metaclass__ = ValueObject
             __fields__ = fields
-        NewClass.__name__ = a_class.__name__
-        NewClass.__module__ = a_class.__module__
+
+        DecoratedClass.__name__ = a_class.__name__
+        DecoratedClass.__module__ = a_class.__module__
+        if hasattr(a_class, '__invariants__'):
+            DecoratedClass.__invariants__ = a_class.__invariants__
+            for invariant in a_class.__invariants__:
+                if hasattr(a_class, invariant):
+                    setattr(DecoratedClass, invariant, getattr(a_class, invariant).im_func)
         del a_class
-        return NewClass
+        return DecoratedClass
     return the_class
