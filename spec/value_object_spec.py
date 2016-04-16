@@ -1,11 +1,11 @@
-from value_object import ValueObject
+from value_object import ValueObject, value_object
 from value_object.exceptions import *
 from expects import *
 
 
+@value_object('x', 'y')
 class Point(object):
-    __metaclass__ = ValueObject
-    __fields__ = ('x', 'y')
+    pass
 
 
 with description(ValueObject):
@@ -62,14 +62,16 @@ with description(ValueObject):
                  FieldMutationAttempt, "Cannot delete field 'x'. ValueObject is immutable"))
 
     with description('restrictions'):
-        with context('on initialization'):
+        with context('on declaration'):
             with it('must at least have one field'):
-                class NoFields(object):
-                    __metaclass__ = ValueObject
-                    __fields__ = ()
+                def create_class_without_fields():
+                    @value_object()
+                    class NoFields(object):
+                        pass
 
-                expect(NoFields).to(raise_error(NoFieldsDeclared))
+                expect(create_class_without_fields).to(raise_error(NoFieldsDeclared))
 
+        with context('on initialization'):
             with context('with non-keyword arguments'):
                 with it('must not have any field initialized to None'):
                     def create_point_with_None_argument():

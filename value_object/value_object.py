@@ -5,7 +5,6 @@ class ValueObject(type):
 
     def __call__(self, *args, **kwargs):
         self._open_class_for_modification()
-        self._check_fields_declared()
         self._check_fields_have_value(*args, **kwargs)
         self._check_one_value_per_field_provided(*args, **kwargs)
 
@@ -15,10 +14,6 @@ class ValueObject(type):
         self._close_class_for_modification()
 
         return value_object
-
-    def _check_fields_declared(self):
-        if not self.__fields__:
-            raise NoFieldsDeclared()
 
     def _check_fields_have_value(self, *args, **kwargs):
         if None in args:
@@ -78,3 +73,18 @@ class ValueObject(type):
         for invariant in self.__invariants__:
             if not getattr(value_object, invariant)():
                 raise InvariantViolation("Fields %s violate invariant '%s'" % (self.__fields__, invariant))
+
+
+def value_object(*fields):
+    if len(fields) < 1:
+        raise NoFieldsDeclared()
+
+    def the_class(a_class):
+        class NewClass(object):
+            __metaclass__ = ValueObject
+            __fields__ = fields
+        NewClass.__name__ = a_class.__name__
+        NewClass.__module__ = a_class.__module__
+        del a_class
+        return NewClass
+    return the_class
